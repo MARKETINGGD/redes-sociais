@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de Resultados — GhelPlus &amp; De Bacco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script src="/vendor/chart.umd.min.js"></script>
+<script src="/vendor/xlsx.full.min.js"></script>
+<script src="/vendor/jspdf.umd.min.js"></script>
+<script src="/vendor/jspdf.plugin.autotable.min.js"></script>
+<script>
+// --- Login único vindo da Plataforma de Gestão de Marketing ---
+(function(){
+  try{
+    var p = new URLSearchParams(location.search);
+    var pt = p.get('platformToken');
+    var pu = p.get('platformUser');
+    if (pt) {
+      localStorage.setItem('token', pt);
+      if (pu) localStorage.setItem('user', decodeURIComponent(pu));
+      p.delete('platformToken'); p.delete('platformUser');
+      var clean = location.pathname + (p.toString() ? '?' + p.toString() : '') + location.hash;
+      history.replaceState({}, '', clean);
+    }
+  }catch(e){}
+})();
+</script>
+<script src="/config.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
