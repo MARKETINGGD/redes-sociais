@@ -209,6 +209,10 @@ input, select, textarea { font-family: inherit; }
 .sidebar-footer { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); }
 .user-chip { display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:#aeb2c2; padding: 6px 8px;}
 .logout-link { background:none;border:none;color:#e78f7a;font-size:12px;font-weight:600; }
+/* Escondido quando a pagina esta embutida na Plataforma de Gestao de
+   Marketing -- marca e logout ja ficam la, duplicar fica desconexo. */
+html.embedded-in-platform .brand-mark,
+html.embedded-in-platform .logout-link{ display:none; }
 .dev-signature { font-size:10.5px; color:#7b8098; text-align:center; padding:6px 8px 2px; opacity:.85; }
 
 .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
