@@ -46,6 +46,36 @@ const app = document.getElementById('app');
   } catch (e) { /* ignora e segue com o padrao (Visao geral) */ }
 })();
 
+// Avisa a Papoi da altura real do conteudo (28a rodada) -- sem isso, o
+// iframe fica com altura fixa e ganha um scroll interno proprio, o que
+// denuncia que "isso e um iframe"; postando a altura, a Papoi ajusta o
+// iframe pra caber tudo e quem rola a pagina e so o scroll normal dela,
+// como se o conteudo fosse nativo da plataforma.
+(function () {
+  if (window.parent === window) return; // nao esta embutido, nada a fazer
+  var lastHeight = 0;
+  function reportHeight() {
+    var h = Math.max(
+      document.documentElement.scrollHeight,
+      document.body ? document.body.scrollHeight : 0
+    );
+    if (h !== lastHeight) {
+      lastHeight = h;
+      window.parent.postMessage({ type: 'papoi-embed-height', height: h }, '*');
+    }
+  }
+  window.addEventListener('load', reportHeight);
+  window.addEventListener('resize', reportHeight);
+  if (window.ResizeObserver) new ResizeObserver(reportHeight).observe(document.documentElement);
+  new MutationObserver(reportHeight).observe(document.documentElement, { childList: true, subtree: true, attributes: true });
+  var tries = 0;
+  var iv = setInterval(function () {
+    reportHeight();
+    if (++tries > 25) clearInterval(iv);
+  }, 600);
+  reportHeight();
+})();
+
 /* ==================== API helper ==================== */
 async function api(path, opts = {}) {
   // Reforço no cliente (28ª rodada): quem entrou pelo link externo (role
