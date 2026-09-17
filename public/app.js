@@ -23,6 +23,29 @@ const state = {
 
 const app = document.getElementById('app');
 
+// 26a rodada: quando a Plataforma de Gestao de Marketing (Papoi) embute
+// esta pagina, ela manda na URL pra onde deve abrir direto -- em vez do
+// iframe sempre cair na Visao geral com a barra lateral inteira deste
+// painel (que duplicava a navegacao da propria Papoi), agora ele ja abre
+// na marca/rede certa, com a barra lateral escondida (ver .embedded-in-
+// platform no style.css) -- a Papoi passa a ser dona da navegacao, e este
+// painel so mostra o conteudo daquela tela.
+// Parametros aceitos: embedBrand=ghelplus|debacco, embedView=overview|
+// channel|content|years|audit, embedChannel=<id> (junto com embedView=
+// channel ou embedView=audit, pra filtrar o historico so daquela rede).
+(function () {
+  try {
+    var p = new URLSearchParams(location.search);
+    var brand = p.get('embedBrand');
+    var view = p.get('embedView');
+    var channel = p.get('embedChannel');
+    if (brand) state.brand = brand;
+    if (view === 'channel' && channel) state.tab = 'channel:' + channel;
+    else if (view === 'audit') state.tab = channel ? 'audit:' + channel : 'audit';
+    else if (view) state.tab = view;
+  } catch (e) { /* ignora e segue com o padrao (Visao geral) */ }
+})();
+
 /* ==================== API helper ==================== */
 async function api(path, opts = {}) {
   const headers = { 'Content-Type': 'application/json' };
@@ -157,8 +180,16 @@ async function initDashboard() {
   await loadYears(state.brand);
   if (!state.years.length) state.years = [new Date().getFullYear()];
   if (!state.year || !state.years.includes(state.year)) state.year = state.years[0];
+  // 26b rodada: respeita o tab/canal que veio no deep-link de incorporacao
+  // (embedView/embedChannel, resolvidos no topo deste arquivo) em vez de
+  // sempre cair na Visao geral -- e' assim que a Papoi abre direto na tela
+  // certa (canal especifico ou historico daquela rede) dentro do iframe.
+  if (state.tab.startsWith('channel:') || state.tab.startsWith('audit:')) {
+    const chId = state.tab.split(':')[1];
+    if (!channelsForBrand(state.brand).some(c => c.id === chId)) state.tab = 'overview';
+  }
   renderShell();
-  await navigateTab('overview');
+  await navigateTab(state.tab);
 }
 
 async function loadYears(brand) {
@@ -332,6 +363,7 @@ async function navigateTab(tab) {
     if (tab === 'content') return renderContentPage();
     if (tab === 'years') return renderYearsPage();
     if (tab === 'audit') return renderAuditPage();
+    if (tab.startsWith('audit:')) return renderAuditPage(tab.split(':')[1]);
     if (tab === 'users') return renderUsersPage();
     if (tab === 'settings') return renderSettingsPage();
   } catch (e) {
@@ -608,6 +640,7 @@ async function renderChannelPage(channelId) {
         <input type="file" id="import-file-input" accept=".xlsx,.xls" style="display:none;">
         <button class="btn btn-ghost btn-sm" id="download-pdf-btn">⭳ Baixar relatório (PDF)</button>
         <button class="btn btn-ghost btn-sm" id="download-excel-report-btn">⭳ Baixar relatório (Excel)</button>
+        <button class="btn btn-ghost btn-sm" id="channel-audit-btn">≡ Histórico desta rede</button>
         <button class="btn btn-accent btn-sm" id="add-metric-btn">+ Lançar mês</button>
       </div>
     </div>
@@ -966,6 +999,8 @@ async function renderChannelPage(channelId) {
   document.getElementById('download-template-btn').addEventListener('click', () => {
     downloadChannelTemplate(ch, brandById(state.brand).label, state.year);
   });
+
+  document.getElementById('channel-audit-btn').addEventListener('click', () => navigateTab('audit:' + ch.id));
 
   document.getElementById('import-template-btn').addEventListener('click', () => {
     document.getElementById('import-file-input').click();
@@ -2054,15 +2089,23 @@ async function renderYearsPage() {
 }
 
 /* ==================== Histórico de alterações ==================== */
-async function renderAuditPage() {
-  setTopbar('Histórico de alterações', `${brandById(state.brand).label}`);
-  const logs = await api(`/audit?brand=${state.brand}`);
+async function renderAuditPage(channelId) {
+  const ch = channelId ? channelById(channelId) : null;
+  setTopbar('Histórico de alterações', ch ? `${ch.label} · ${brandById(state.brand).label}` : `${brandById(state.brand).label}`);
+  const logs = await api(`/audit?brand=${state.brand}${ch ? `&channel=${channelId}` : ''}`);
   const contentEl = document.getElementById('content');
+  // 26a rodada: quando o historico foi aberto de dentro de uma rede
+  // especifica (botao "Historico desta rede"), mostra um link pra voltar
+  // pra tela daquela rede -- sem isso, so dava pra sair pelo menu lateral
+  // (que fica escondido quando este painel esta embutido na Papoi).
+  const backLink = ch ? `<button class="btn-ghost btn btn-sm" id="audit-back-btn" style="margin-bottom:14px;">◀ Voltar para ${escapeHtml(ch.label)}</button>` : '';
   if (!logs.length) {
-    contentEl.innerHTML = `<div class="card"><div class="empty-state">Nenhuma alteração registrada ainda para esta marca.</div></div>`;
+    contentEl.innerHTML = `${backLink}<div class="card"><div class="empty-state">${ch ? `Nenhuma alteração registrada ainda para ${escapeHtml(ch.label)}.` : 'Nenhuma alteração registrada ainda para esta marca.'}</div></div>`;
+    if (ch) document.getElementById('audit-back-btn').addEventListener('click', () => navigateTab('channel:' + ch.id));
     return;
   }
   contentEl.innerHTML = `
+    ${backLink}
     <div class="section-head"><h3>Últimas alterações</h3></div>
     <div class="card">
       <table>
@@ -2080,6 +2123,7 @@ async function renderAuditPage() {
       </table>
     </div>
   `;
+  if (ch) document.getElementById('audit-back-btn').addEventListener('click', () => navigateTab('channel:' + ch.id));
 }
 
 /* ==================== Usuários ==================== */

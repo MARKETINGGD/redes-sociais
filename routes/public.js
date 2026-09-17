@@ -1,10 +1,23 @@
 const express = require('express');
 const db = require('../db');
 const { handleExcelReport, handleOverviewExcelReport, handleContentExcelReport } = require('./reports');
+const { BRANDS, CHANNELS } = require('../public/config.js');
 
 const router = express.Router();
 
 // Somente GET, sem autenticação, sem dados sensíveis (sem usuários/senhas).
+
+// 26a rodada: lista de marcas/redes (metadados só — nome, grupo, cor —
+// nada de dado de resultado), pra quem embute este painel (a Papoi)
+// conseguir montar a própria navegação nativa (lista de redes + visão
+// geral) sem duplicar essa lista manualmente em outro lugar. Já vem do
+// mesmo config.js usado pelo próprio painel, então nunca fica desatualizada.
+router.get('/channels', (req, res) => {
+  res.json({
+    brands: BRANDS,
+    channels: CHANNELS.map((c) => ({ id: c.id, label: c.label, group: c.group, color: c.color, excludeBrands: c.excludeBrands || [] }))
+  });
+});
 
 router.get('/metrics', (req, res) => {
   const { brand, year, channel } = req.query;

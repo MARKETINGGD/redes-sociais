@@ -81,7 +81,7 @@ router.post('/', requireAuth, (req, res) => {
     updatedBy: req.user.username
   };
   db.get('content').push(item).write();
-  logAudit({ user: req.user, brand: item.brand, entityType: 'conteudo', entityId: item.id, entityLabel: item.title, action: 'criou' });
+  logAudit({ user: req.user, brand: item.brand, channel: item.channel, entityType: 'conteudo', entityId: item.id, entityLabel: item.title, action: 'criou' });
   res.json(item);
 });
 
@@ -96,7 +96,7 @@ router.put('/:id', requireAuth, (req, res) => {
   numFields.forEach(f => { if (body[f] !== undefined) updates[f] = numOrNull(body[f]); });
   if (body.sponsored !== undefined) updates.sponsored = !!body.sponsored;
   db.get('content').find({ id: req.params.id }).assign(updates).write();
-  logAudit({ user: req.user, brand: item.brand, entityType: 'conteudo', entityId: item.id, entityLabel: item.title, action: 'editou' });
+  logAudit({ user: req.user, brand: item.brand, channel: item.channel, entityType: 'conteudo', entityId: item.id, entityLabel: item.title, action: 'editou' });
   res.json(db.get('content').find({ id: req.params.id }).value());
 });
 
@@ -104,7 +104,7 @@ router.delete('/:id', requireAuth, (req, res) => {
   const item = db.get('content').find({ id: req.params.id }).value();
   if (!item) return res.status(404).json({ error: 'Conteúdo não encontrado' });
   db.get('content').remove({ id: req.params.id }).write();
-  logAudit({ user: req.user, brand: item.brand, entityType: 'conteudo', entityId: item.id, entityLabel: item.title, action: 'removeu' });
+  logAudit({ user: req.user, brand: item.brand, channel: item.channel, entityType: 'conteudo', entityId: item.id, entityLabel: item.title, action: 'removeu' });
   res.json({ ok: true });
 });
 

@@ -136,7 +136,7 @@ router.post('/', requireAuth, (req, res) => {
   };
   db.get('metrics').push(item).write();
   logAudit({
-    user: req.user, brand: item.brand, entityType: 'metrica', entityId: item.id,
+    user: req.user, brand: item.brand, channel: item.channel, entityType: 'metrica', entityId: item.id,
     entityLabel: `${CHANNEL_LABELS[item.channel] || item.channel} ${item.month}/${item.year}`,
     action: 'criou', details: 'Lançamento de métricas mensais'
   });
@@ -173,7 +173,7 @@ router.put('/:id', requireAuth, (req, res) => {
   if (body.notes !== undefined) updates.notes = body.notes;
   db.get('metrics').find({ id: req.params.id }).assign(updates).write();
   logAudit({
-    user: req.user, brand: item.brand, entityType: 'metrica', entityId: item.id,
+    user: req.user, brand: item.brand, channel: item.channel, entityType: 'metrica', entityId: item.id,
     entityLabel: `${CHANNEL_LABELS[item.channel] || item.channel} ${item.month}/${item.year}`,
     action: 'editou', details: 'Atualização de métricas mensais'
   });
@@ -185,7 +185,7 @@ router.delete('/:id', requireAuth, (req, res) => {
   if (!item) return res.status(404).json({ error: 'Registro não encontrado' });
   db.get('metrics').remove({ id: req.params.id }).write();
   logAudit({
-    user: req.user, brand: item.brand, entityType: 'metrica', entityId: item.id,
+    user: req.user, brand: item.brand, channel: item.channel, entityType: 'metrica', entityId: item.id,
     entityLabel: `${CHANNEL_LABELS[item.channel] || item.channel} ${item.month}/${item.year}`,
     action: 'removeu'
   });
