@@ -7,6 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Barra escrita (POST/PUT/DELETE) de quem entrou como visitante pelo link
+// externo (28ª rodada, role 'none') — ver middleware/blockViewerWrites.js.
+app.use('/api', require('./middleware/blockViewerWrites'));
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/metrics', require('./routes/metrics'));
 app.use('/api/content', require('./routes/content'));

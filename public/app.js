@@ -48,6 +48,15 @@ const app = document.getElementById('app');
 
 /* ==================== API helper ==================== */
 async function api(path, opts = {}) {
+  // Reforço no cliente (28ª rodada): quem entrou pelo link externo (role
+  // 'none') não deveria nem tentar escrever -- o bloqueio de verdade é no
+  // servidor (middleware/blockViewerWrites.js), isso aqui só dá feedback
+  // na hora, sem esperar o round-trip.
+  const method = (opts.method || 'GET').toUpperCase();
+  if (method !== 'GET' && state.user && state.user.role === 'none') {
+    toast('Link de visitante: somente leitura.', true);
+    throw new Error('Link de visitante: somente leitura.');
+  }
   const headers = { 'Content-Type': 'application/json' };
   if (state.token) headers['Authorization'] = 'Bearer ' + state.token;
   const res = await fetch('/api' + path, {
@@ -252,7 +261,7 @@ function renderShell() {
         <nav id="nav-tree"></nav>
         <div class="sidebar-footer">
           <div class="user-chip">
-            <span>${escapeHtml(state.user.username)} · ${state.user.role === 'admin' ? 'admin' : 'editor'}</span>
+            <span>${escapeHtml(state.user.username)} · ${state.user.role === 'admin' ? 'admin' : (state.user.role === 'none' ? 'visitante' : 'editor')}</span>
             <button class="logout-link" id="logout-btn">Sair</button>
           </div>
           <div class="dev-signature">Desenvolvido por Raquel Daltoé (Pixie Marketing)</div>
