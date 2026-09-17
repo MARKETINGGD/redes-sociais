@@ -1,18 +1,23 @@
 :root {
-  --ink: #14161f;
-  --ink-soft: #1d2030;
+  /* 26ª rodada: retocado pra usar a MESMA paleta e tipografia da
+     Plataforma de Gestão de Marketing (Papoi) — pedido da Raquel: "deixe
+     ele no mesmo padrão de cores e tipografia da plataforma". Os nomes
+     das variáveis continuam os mesmos de sempre (só os valores mudaram),
+     então nada mais no arquivo precisou ser reescrito. */
+  --ink: #1c1830;
+  --ink-soft: #2b2547;
   --panel: #ffffff;
-  --bg: #f3f2ee;
-  --line: #e4e2da;
-  --text: #1c1e26;
-  --text-mute: #6b6f7d;
-  --accent: #0f9d78;
-  --accent-soft: #e4f5ef;
-  --warn: #b5772e;
-  --danger: #b8452f;
-  --radius: 10px;
-  --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --bg: #f5f7f6;
+  --line: #e2e6e4;
+  --text: #1c2521;
+  --text-mute: #6b7670;
+  --accent: #6D63E0;
+  --accent-soft: #EFEBFC;
+  --warn: #FB9B18;
+  --danger: #c0392b;
+  --radius: 12px;
+  --mono: Arial, Helvetica, sans-serif;
+  --sans: Arial, Helvetica, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -28,6 +33,7 @@ body {
 a { color: inherit; }
 button { font-family: inherit; cursor: pointer; }
 input, select, textarea { font-family: inherit; }
+h1, h2, h3, h4, h5, h6 { font-weight: 700; }
 
 /* ---------- Login / Setup ---------- */
 .auth-screen {
@@ -36,8 +42,8 @@ input, select, textarea { font-family: inherit; }
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at 15% 20%, rgba(15,157,120,0.16), transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(122,32,72,0.14), transparent 45%),
+    radial-gradient(circle at 15% 20%, rgba(109,99,224,0.18), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(251,90,46,0.14), transparent 45%),
     var(--ink);
   padding: 24px;
 }
@@ -98,7 +104,7 @@ input, select, textarea { font-family: inherit; }
   border-radius: 8px;
   border: none;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 700;
   transition: transform .08s ease, filter .12s ease;
 }
 .btn:active { transform: scale(0.98); }
@@ -125,8 +131,8 @@ input, select, textarea { font-family: inherit; }
 }
 .hint-msg {
   background: var(--accent-soft);
-  border: 1px solid #bfe4d6;
-  color: #0b6b50;
+  border: 1px solid #d9d2f7;
+  color: #5148C4;
   padding: 10px 12px;
   border-radius: 8px;
   font-size: 13px;
@@ -338,7 +344,7 @@ td.num, th.num { text-align: right; font-family: var(--mono); }
 .public-banner {
   background: var(--ink); color:#fff; padding: 10px 16px; text-align:center;
 }
-.public-banner a { color: #7dd8bb; font-weight:700; text-decoration:none; }
+.public-banner a { color: #c9c3fb; font-weight:700; text-decoration:none; }
 .public-banner-welcome { font-size:13.5px; font-weight:700; }
 .public-banner-sub { font-size:11.5px; opacity:0.8; margin-top:2px; }
 
